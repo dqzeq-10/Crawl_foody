@@ -1,0 +1,26 @@
+# Ignore MySQL data directory contents but keep the directory
+db/mysql_data/*
+!db/mysql_data/.gitkeep
+
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Local development settings
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE directories
+.idea/
+.vscode/
+*.swp
+*.swo 
