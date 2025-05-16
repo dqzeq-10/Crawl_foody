@@ -5,10 +5,16 @@ import time
 import uvicorn
 from pydantic import BaseModel, validator
 import logging
+import os
 
 # Thiết lập logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Đợi database sẵn sàng
+if os.environ.get('WAIT_FOR_DB', '0') == '1':
+    logger.info("Đợi MySQL khởi động và thực thi script init...")
+    time.sleep(15)  # Đợi 15 giây để đảm bảo MySQL hoàn tất initialization
 
 app = FastAPI()
 
@@ -23,10 +29,10 @@ class Branch(BaseModel):
     IsOpening: bool = True
     HasDelivery: bool = False
     
-    @validator('TotalReview')
-    def validate_total_review(cls, v):
+    @validator('AvgRating')
+    def validate_avg_rating(cls, v):
         if not 0 <= v <= 10:
-            raise ValueError('TotalReview phải có giá trị từ 0 đến 10')
+            raise ValueError('AvgRating phải có giá trị từ 0 đến 10')
         return v
 
 # Model cho update chi nhánh
@@ -40,10 +46,10 @@ class BranchUpdate(BaseModel):
     IsOpening: bool = None
     HasDelivery: bool = None
     
-    @validator('TotalReview')
-    def validate_total_review(cls, v):
+    @validator('AvgRating')
+    def validate_avg_rating(cls, v):
         if v is not None and not 0 <= v <= 10:
-            raise ValueError('TotalReview phải có giá trị từ 0 đến 10')
+            raise ValueError('AvgRating phải có giá trị từ 0 đến 10')
         return v
 
 def get_db_connection():
