@@ -1,12 +1,8 @@
--- Nếu database đã tồn tại, sử dụng nó
-CREATE DATABASE db_crawl CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Sử dụng database đã được tạo tự động bởi Docker
 USE db_crawl;
 
--- Xóa bảng nếu đã tồn tại
-DROP TABLE IF EXISTS foody_branches;
-
--- Tạo bảng mới
-CREATE TABLE foody_branches (
+-- Chỉ tạo bảng nếu bảng chưa tồn tại
+CREATE TABLE IF NOT EXISTS foody_branches (
     Id INT(10) NOT NULL AUTO_INCREMENT,
     BranchName VARCHAR(255) NOT NULL DEFAULT '',
     AvgRating DECIMAL(3,2) NOT NULL DEFAULT 0.0 CHECK (AvgRating BETWEEN 0 AND 10),

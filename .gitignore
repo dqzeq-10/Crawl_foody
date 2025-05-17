@@ -2,6 +2,14 @@
 db/mysql_data/*
 !db/mysql_data/.gitkeep
 
+# Ignore landing_zone contents but keep the directory
+landing_zone/*
+!landing_zone/.gitkeep
+
+# Docker volumes
+volumes/*
+!volumes/.gitkeep
+
 # Python bytecode files
 __pycache__/
 *.py[cod]
@@ -11,6 +19,13 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Local development settings
 .env
@@ -23,4 +38,13 @@ ENV/
 .idea/
 .vscode/
 *.swp
-*.swo 
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

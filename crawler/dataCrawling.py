@@ -4,8 +4,8 @@ import time
 import os
 
 BASE_URL = "https://www.foody.vn/da-nang/cafe"
-OUTPUT_DIR = "landing_zone"
-MAX_PAGES_TO_CRAWL = 5
+OUTPUT_DIR = "/app/landing_zone"
+MAX_PAGES_TO_CRAWL = 1
 
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)

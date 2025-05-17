@@ -1,32 +1,107 @@
 services:
+  # Database service
   db:
     image: mysql:8.0
-    container_name: database
+    container_name: db
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init_db:/docker-entrypoint-initdb.d
     ports:
       - "3307:3306"
-    volumes:
-      - ./db/mysql_data:/var/lib/mysql
-      - ./db/init_db:/docker-entrypoint-initdb.d
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db_crawl
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=db_crawl
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
-      - app_network
-    restart: always
+      - foody-network
 
-  db_api:
-    build: 
+  # Database API service
+  db-api:
+    build:
       context: ./db_api
-      dockerfile: Dockerfile
-    container_name: db_api
+    container_name: db-api
+    hostname: db-api
     ports:
-      - "9000:8000"
+      - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    environment:
+      - WAIT_FOR_DB=1
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
-      - app_network
-    restart: always
+      - foody-network
 
+  # Crawler service
+  crawler:
+    build:
+      context: ./crawler
+    container_name: crawler
+    volumes:
+      - landing_data:/app/landing_zone
+      - ./landing_zone:/host_landing_zone
+    depends_on:
+      db-api:
+        condition: service_healthy
+    networks:
+      - foody-network
+
+  # Data Ingestion service
+  data-ingestion:
+    build:
+      context: ./data_ingestion
+    container_name: data-ingestion
+    volumes:
+      - landing_data:/app/landing_zone
+    depends_on:
+      crawler:
+        condition: service_started
+      db-api:
+        condition: service_healthy
+    links:
+      - db-api
+    networks:
+      - foody-network
+# Dịch vụ api-gateway sẽ được triển khai sau
+#  api-gateway:
+#    build:
+#      context: ./api_gateway
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - db-api
+#    networks:
+#      - foody-network
+#
+# Dịch vụ web-page cũng sẽ được triển khai sau
+#  web-page:
+#    build:
+#      context: ./web_page
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - api-gateway
+#    networks:
+#      - foody-network
+
+# Define a custom network for all services
 networks:
-  app_network:
+  foody-network:
     driver: bridge
+
+# Define named volumes
+volumes:
+  landing_data:
+  mysql_data:
+    name: mysql_data_persistent
