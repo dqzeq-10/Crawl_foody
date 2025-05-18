@@ -228,5 +228,32 @@ def delete_branch(branch_id: int):
     finally:
         conn.close()
 
+@app.get('/branch/search/')
+def search_branch_by_name(q: str):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Tìm gần đúng, không phân biệt hoa thường
+    query = "SELECT * FROM foody_branches WHERE LOWER(BranchName) LIKE %s"
+    like_pattern = f"%{q.lower()}%"
+    cursor.execute(query, (like_pattern,))
+    results = cursor.fetchall()
+    conn.close()
+    
+    branches = [
+        {
+            'Id': row[0],
+            'BranchName': row[1],
+            'AvgRating': float(row[2]),
+            'Address': row[3],
+            'City': row[4],
+            'TotalReview': row[5],
+            'TotalCheckins': row[6],
+            'IsOpening': bool(row[7]),
+            'HasDelivery': bool(row[8])
+        }
+        for row in results
+    ]
+    return branches
+
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=8000)
