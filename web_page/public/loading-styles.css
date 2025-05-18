@@ -1,0 +1,57 @@
+/* Additional styles for loading animation */
+.loading-message {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 16px;
+    color: #666;
+}
+
+.spinner {
+    margin: 20px auto;
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(238, 77, 45, 0.2);
+    border-top: 5px solid #ee4d2d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error message styling */
+.error-message {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 16px;
+    color: #e74c3c;
+    background-color: #fef5f5;
+    border-radius: 8px;
+    border: 1px solid #fadbd8;
+    margin: 20px;
+}
+
+.error-message p {
+    margin: 10px 0;
+}
+
+/* Retry button styling */
+.retry-button {
+    display: inline-block;
+    background-color: #ee4d2d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin-top: 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+    background-color: #d73211;
+}

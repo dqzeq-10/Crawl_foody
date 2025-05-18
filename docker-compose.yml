@@ -93,15 +93,15 @@ services:
       - foody-network
 
 # Dịch vụ web-page cũng sẽ được triển khai sau
-#  web-page:
-#    build:
-#      context: ./web_page
-#    ports:
-#      - "3000:3000"
-#    depends_on:
-#      - api-gateway
-#    networks:
-#      - foody-network
+  web-page:
+   build:
+     context: ./web_page
+   ports:
+     - "3000:3000"
+   depends_on:
+     - api-gateway
+   networks:
+     - foody-network
 
 # Define a custom network for all services
 networks:

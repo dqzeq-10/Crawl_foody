@@ -6,6 +6,9 @@ import uvicorn
 from pydantic import BaseModel, validator
 import logging
 import os
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 # Thiết lập logging
 logging.basicConfig(level=logging.INFO)
@@ -17,6 +20,13 @@ if os.environ.get('WAIT_FOR_DB', '0') == '1':
     time.sleep(15)  # Đợi 15 giây để đảm bảo MySQL hoàn tất initialization
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:3000"],  # hoặc ["*"] để cho phép tất cả
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Model cho dữ liệu chi nhánh
 class Branch(BaseModel):
