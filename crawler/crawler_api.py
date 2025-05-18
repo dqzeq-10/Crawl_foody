@@ -58,6 +58,54 @@ schedules = []
 schedule_file_path = "/app/landing_zone/schedules.json"
 
 
+# Load existing schedules at startup
+def load_schedules():
+    try:
+        if os.path.exists(schedule_file_path):
+            with open(schedule_file_path, "r") as f:
+                loaded_schedules = json.load(f)
+                for schedule in loaded_schedules:
+                    add_schedule_job(schedule)
+                logger.info(f"Đã tải {len(loaded_schedules)} lịch trình từ file")
+                return loaded_schedules
+    except Exception as e:
+        logger.error(f"Lỗi khi tải lịch trình: {str(e)}")
+    return []
+
+# Save schedules to file
+def save_schedules():
+    try:
+        with open(schedule_file_path, "w") as f:
+            json.dump(schedules, f, indent=4)
+        logger.info(f"Đã lưu {len(schedules)} lịch trình vào file")
+    except Exception as e:
+        logger.error(f"Lỗi khi lưu lịch trình: {str(e)}")
+
+# Function to add schedule job to scheduler
+def add_schedule_job(schedule):
+    try:
+        job_id = f"crawler_{schedule['name']}"
+        
+        # Remove job if it already exists
+        if scheduler.get_job(job_id):
+            scheduler.remove_job(job_id)
+        
+        if schedule['active']:
+            # Add new job
+            scheduler.add_job(
+                run_crawler,
+                CronTrigger.from_crontab(schedule['cron_expression']),
+                id=job_id,
+                kwargs={"pages": schedule.get('pages', 1)},
+                name=schedule['name'],
+                replace_existing=True
+            )
+            logger.info(f"Đã đăng ký lịch trình: {schedule['name']} ({schedule['cron_expression']})")
+        return True
+    except Exception as e:
+        logger.error(f"Lỗi khi đăng ký lịch trình {schedule['name']}: {str(e)}")
+        return False
+
 def run_crawler(pages: int = None):
     """Background task to run the crawler"""
     global crawling_status

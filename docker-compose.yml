@@ -13,6 +13,7 @@ services:
       - MYSQL_DATABASE=db_crawl
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
+      - TZ=Asia/Ho_Chi_Minh
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
       interval: 10s
@@ -34,6 +35,7 @@ services:
         condition: service_healthy
     environment:
       - WAIT_FOR_DB=1
+      - TZ=Asia/Ho_Chi_Minh
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/" ]
       interval: 10s
@@ -48,6 +50,8 @@ services:
     build:
       context: ./crawler
     container_name: crawler
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
     volumes:
       - landing_data:/app/landing_zone
       - ./landing_zone:/host_landing_zone
@@ -69,6 +73,8 @@ services:
     build:
       context: ./data_ingestion
     container_name: data-ingestion
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
     volumes:
       - landing_data:/app/landing_zone
     ports:
@@ -93,6 +99,8 @@ services:
     build:
       context: ./api_gateway
     container_name: api-gateway
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
     restart: unless-stopped
     ports:
       - "8080:8080"
