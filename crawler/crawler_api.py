@@ -1,16 +1,48 @@
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
-import dataCrawling
 import os
 import subprocess
 import time
 import logging
+from datetime import datetime
+from typing import Optional, List
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.jobstores.memory import MemoryJobStore
+from pydantic import BaseModel, validator
+import json
+from dateutil.parser import parse as parse_date
+import requests
+
+import dataCrawling
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Khởi tạo scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_jobstore(MemoryJobStore(), 'default')
+scheduler.start()
+
 app = FastAPI(title="Foody Crawler API")
+
+# Model cho lập lịch
+class ScheduleModel(BaseModel):
+    name: str
+    cron_expression: str
+    pages: Optional[int] = 1
+    description: Optional[str] = None
+    active: bool = True
+    
+    @validator('cron_expression')
+    def validate_cron(cls, v):
+        # Check valid cron expression
+        try:
+            CronTrigger.from_crontab(v)
+            return v
+        except Exception as e:
+            raise ValueError(f"Biểu thức cron không hợp lệ: {str(e)}")
 
 # Track crawling status
 crawling_status = {
@@ -20,6 +52,11 @@ crawling_status = {
     "pages_crawled": 0,
     "error": None
 }
+
+# Track schedules
+schedules = []
+schedule_file_path = "/app/landing_zone/schedules.json"
+
 
 def run_crawler(pages: int = None):
     """Background task to run the crawler"""
@@ -126,6 +163,145 @@ def reset_crawler():
     crawling_status["error"] = None
     
     return {"message": "Crawler status has been reset"}
+
+
+# SCHEDULER ENDPOINTS
+
+@app.get("/schedule")
+def get_schedules():
+    """Get all crawl schedules"""
+    # Show next run time for each schedule
+    result = []
+    for schedule in schedules:
+        schedule_copy = schedule.copy()
+        job = scheduler.get_job(f"crawler_{schedule['name']}")
+        if job:
+            schedule_copy["next_run"] = job.next_run_time.strftime("%Y-%m-%d %H:%M:%S") if job.next_run_time else None
+        else:
+            schedule_copy["next_run"] = None
+        result.append(schedule_copy)
+    return result
+
+@app.post("/schedule")
+def create_schedule(schedule: ScheduleModel):
+    """Create a new crawl schedule"""
+    global schedules
+    
+    # Check if schedule with this name already exists
+    for existing in schedules:
+        if existing["name"] == schedule.name:
+            raise HTTPException(status_code=400, detail=f"Lịch trình với tên '{schedule.name}' đã tồn tại")
+    
+    # Create schedule dict
+    schedule_dict = {
+        "name": schedule.name,
+        "cron_expression": schedule.cron_expression,
+        "pages": schedule.pages,
+        "description": schedule.description,
+        "active": schedule.active,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
+    # Add to scheduler
+    if add_schedule_job(schedule_dict):
+        # Add to list and save
+        schedules.append(schedule_dict)
+        save_schedules()
+        return {"message": f"Đã tạo lịch trình '{schedule.name}'", "schedule": schedule_dict}
+    else:
+        raise HTTPException(status_code=500, detail="Không thể đăng ký lịch trình")
+
+@app.put("/schedule/{name}")
+def update_schedule(name: str, schedule: ScheduleModel):
+    """Update an existing crawl schedule"""
+    global schedules
+    
+    # Find schedule
+    found = False
+    for i, existing in enumerate(schedules):
+        if existing["name"] == name:
+            found = True
+            
+            # Update schedule
+            schedule_dict = {
+                "name": schedule.name,
+                "cron_expression": schedule.cron_expression,
+                "pages": schedule.pages,
+                "description": schedule.description,
+                "active": schedule.active,
+                "created_at": existing.get("created_at"),
+                "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            # Update in scheduler
+            if add_schedule_job(schedule_dict):
+                # Update in list and save
+                schedules[i] = schedule_dict
+                save_schedules()
+                return {"message": f"Đã cập nhật lịch trình '{name}'", "schedule": schedule_dict}
+            else:
+                raise HTTPException(status_code=500, detail="Không thể cập nhật lịch trình")
+    
+    if not found:
+        raise HTTPException(status_code=404, detail=f"Không tìm thấy lịch trình '{name}'")
+
+@app.delete("/schedule/{name}")
+def delete_schedule(name: str):
+    """Delete a crawl schedule"""
+    global schedules
+    
+    # Find schedule
+    found = False
+    for i, existing in enumerate(schedules):
+        if existing["name"] == name:
+            found = True
+            
+            # Remove from scheduler
+            job_id = f"crawler_{name}"
+            if scheduler.get_job(job_id):
+                scheduler.remove_job(job_id)
+            
+            # Remove from list and save
+            schedules.pop(i)
+            save_schedules()
+            return {"message": f"Đã xóa lịch trình '{name}'"}
+    
+    if not found:
+        raise HTTPException(status_code=404, detail=f"Không tìm thấy lịch trình '{name}'")
+
+@app.post("/schedule/{name}/toggle")
+def toggle_schedule(name: str):
+    """Enable or disable a schedule"""
+    global schedules
+    
+    # Find schedule
+    for i, existing in enumerate(schedules):
+        if existing["name"] == name:
+            # Toggle active status
+            existing["active"] = not existing["active"]
+            existing["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Update scheduler
+            if add_schedule_job(existing):
+                save_schedules()
+                status = "kích hoạt" if existing["active"] else "tạm dừng"
+                return {"message": f"Đã {status} lịch trình '{name}'", "active": existing["active"]}
+            else:
+                raise HTTPException(status_code=500, detail=f"Không thể {status} lịch trình")
+    
+    raise HTTPException(status_code=404, detail=f"Không tìm thấy lịch trình '{name}'")
+
+# Load schedules at startup
+@app.on_event("startup")
+def startup_event():
+    global schedules
+    schedules = load_schedules()
+
+# Shutdown scheduler when app stops
+@app.on_event("shutdown")
+def shutdown_event():
+    scheduler.shutdown()
+
 
 if __name__ == "__main__":
     import uvicorn

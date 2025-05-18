@@ -193,6 +193,7 @@
             <p>Đặt lại trạng thái crawler (dùng cho debug/kiểm thử).</p>
         </div>
 
+
         <h3> <a href="http://localhost:8002/docs" target="_blank" class="api-doc-link">API DATA INGESTION Docs</a>
         </h3>
         <div class="endpoint">
@@ -216,44 +217,72 @@
             <p>Kiểm tra kết nối đến database API.</p>
         </div>
 
-        <h3> <a href="http://localhost:8000/docs" target="_blank" class="api-doc-link">API BRANCHES Docs</a>
-        </h3>
-        <div class="endpoint">
-            <p><span class="method">GET</span> <a
-                    href="http://localhost:8000/docs#/default/get_branches_branches_get">/api/db/branches</a></p>
-            <p>Lấy danh sách tất cả các chi nhánh.</p>
-        </div>
+        <h3> <a href="/scheduler" target="_blank" class="api-doc-link">API DATA INGESTION Docs</a>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a href="/api/crawler/schedule">/api/crawler/schedule</a></p>
+                <p>Lấy danh sách tất cả lịch trình crawl đã cấu hình.</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method post">POST</span> <a href="/api/crawler/schedule">/api/crawler/schedule</a></p>
+                <p>Tạo một lịch trình crawl mới. Yêu cầu body JSON với các trường: name, cron_expression, pages (tùy
+                    chọn),
+                    description (tùy chọn), active (tùy chọn).</p>
+                <p><small>Ví dụ cron: "0 0 * * *" (chạy lúc 0:00 mỗi ngày)</small></p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method put">PUT</span> <a
+                        href="/api/crawler/schedule/{name}">/api/crawler/schedule/{name}</a></p>
+                <p>Cập nhật lịch trình crawl hiện có.</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method delete">DELETE</span> <a
+                        href="/api/crawler/schedule/{name}">/api/crawler/schedule/{name}</a></p>
+                <p>Xóa lịch trình crawl.</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method post">POST</span> <a
+                        href="/api/crawler/schedule/{name}/toggle">/api/crawler/schedule/{name}/toggle</a></p>
+                <p>Bật/tắt lịch trình crawl.</p>
+            </div>
 
-        <div class="endpoint">
-            <p><span class="method">GET</span> <a
-                    href="http://localhost:8000/docs#/default/get_branch_by_id_branch__branch_id__get">/api/db/branch/{branch_id}</a>
-            </p>
-            <p>Lấy thông tin chi tiết của một chi nhánh cụ thể theo ID.</p>
-        </div>
+            <h3> <a href="http://localhost:8000/docs" target="_blank" class="api-doc-link">API BRANCHES Docs</a>
+            </h3>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a
+                        href="http://localhost:8000/docs#/default/get_branches_branches_get">/api/db/branches</a></p>
+                <p>Lấy danh sách tất cả các chi nhánh.</p>
+            </div>
 
-        <div class="endpoint">
-            <p><span class="method post">POST</span> <a
-                    href="http://localhost:8000/docs#/default/create_branch_branch_post">/api/db/branch</a></p>
-            <p>Tạo một chi nhánh mới.</p>
-        </div>
-        <div class="endpoint">
-            <p><span class="method put">PUT</span> <a
-                    href="http://localhost:8000/docs#/default/update_branch_branch__branch_id__put">/api/db/branch/{branch_id}</a>
-            </p>
-            <p>Cập nhật thông tin chi nhánh hiện có.</p>
-        </div>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a
+                        href="http://localhost:8000/docs#/default/get_branch_by_id_branch__branch_id__get">/api/db/branch/{branch_id}</a>
+                </p>
+                <p>Lấy thông tin chi tiết của một chi nhánh cụ thể theo ID.</p>
+            </div>
 
-        <div class="endpoint">
-            <p><span class="method delete">DELETE</span> <a
-                    href="http://localhost:8000/docs#/default/delete_branch_branch__branch_id__delete">/api/db/branch/{branch_id}</a>
-            </p>
-            <p>Xóa một chi nhánh theo ID.</p>
-        </div>
+            <div class="endpoint">
+                <p><span class="method post">POST</span> <a
+                        href="http://localhost:8000/docs#/default/create_branch_branch_post">/api/db/branch</a></p>
+                <p>Tạo một chi nhánh mới.</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method put">PUT</span> <a
+                        href="http://localhost:8000/docs#/default/update_branch_branch__branch_id__put">/api/db/branch/{branch_id}</a>
+                </p>
+                <p>Cập nhật thông tin chi nhánh hiện có.</p>
+            </div>
 
-        <div class="endpoint">
-            <p><span class="method">GET</span> <a href="/health">/health</a></p>
-            <p>Endpoint kiểm tra trạng thái để xác minh xem Cổng API có đang hoạt động không.</p>
-        </div>
+            <div class="endpoint">
+                <p><span class="method delete">DELETE</span> <a
+                        href="http://localhost:8000/docs#/default/delete_branch_branch__branch_id__delete">/api/db/branch/{branch_id}</a>
+                </p>
+                <p>Xóa một chi nhánh theo ID.</p>
+            </div>
+
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a href="/health">/health</a></p>
+                <p>Endpoint kiểm tra trạng thái để xác minh xem Cổng API có đang hoạt động không.</p>
+            </div>
     </div>
 
     <h2>Cách Sử Dụng</h2>
