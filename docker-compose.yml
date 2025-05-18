@@ -71,6 +71,8 @@ services:
     container_name: data-ingestion
     volumes:
       - landing_data:/app/landing_zone
+    ports:
+      - "8002:8000" # Expose data ingestion API on port 8002
     depends_on:
       crawler:
         condition: service_started
@@ -80,17 +82,31 @@ services:
       - db-api
     networks:
       - foody-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # API Gateway service
   api-gateway:
     build:
       context: ./api_gateway
     container_name: api-gateway
+    restart: unless-stopped
     ports:
       - "8080:8080"
     depends_on:
       db-api:
         condition: service_healthy
+      data-ingestion:
+        condition: service_healthy
+      crawler:
+        condition: service_healthy
+    links:
+      - db-api
+      - data-ingestion
+      - crawler
     healthcheck:
       test: [ "CMD", "sh", "health_check.sh" ]
       interval: 10s
