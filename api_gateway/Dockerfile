@@ -1,16 +1,24 @@
-FROM python:3.9-slim
+FROM nginx:alpine
 
-WORKDIR /app
+# Remove default nginx configuration
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copy source code
-COPY . .
+# Copy health check script
+COPY health_check.sh /health_check.sh
+RUN chmod +x /health_check.sh
 
-# Expose the port that API Gateway will run on
+# Remove default nginx welcome page
+RUN rm -rf /usr/share/nginx/html/*
+
+# Create directory for static files
+RUN mkdir -p /usr/share/nginx/html/
+
+# Copy HTML files
+COPY html/ /usr/share/nginx/html/
+
 EXPOSE 8080
 
-# Command to run the API Gateway
-CMD ["python", "app.py"]
+CMD [ "nginx", "-g", "daemon off;" ]
