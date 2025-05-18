@@ -2,6 +2,7 @@ import requests
 import json
 import time
 import os
+from datetime import datetime
 
 BASE_URL = "https://www.foody.vn/da-nang/cafe"
 OUTPUT_DIR = "/app/landing_zone"
@@ -71,7 +72,9 @@ def crawl_page(page_number):
             return None
         
         if data:
-            file_path = os.path.join(OUTPUT_DIR, f"foody_danang_cafe_page_{page_number}.json")
+            # Tạo timestamp cho tên file
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            file_path = os.path.join(OUTPUT_DIR, f"foody_danang_cafe_page_{page_number}_{timestamp}.json")
             with open(file_path, 'w', encoding='utf-8') as f:
                       json.dump(data, f, ensure_ascii=False, indent=4)
             print(f"Đã lưu dữ liệu trang {page_number} vào {file_path}")

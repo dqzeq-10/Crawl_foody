@@ -96,7 +96,7 @@ def add_schedule_job(schedule):
                 run_crawler,
                 CronTrigger.from_crontab(schedule['cron_expression']),
                 id=job_id,
-                kwargs={"pages": schedule.get('pages', 1)},
+                kwargs={"pages": schedule.get('pages', 1), "scheduled": True},
                 name=schedule['name'],
                 replace_existing=True
             )
@@ -106,7 +106,7 @@ def add_schedule_job(schedule):
         logger.error(f"Lỗi khi đăng ký lịch trình {schedule['name']}: {str(e)}")
         return False
 
-def run_crawler(pages: int = None):
+def run_crawler(pages: int = None, scheduled: bool = False):
     """Background task to run the crawler"""
     global crawling_status
     
@@ -160,6 +160,19 @@ def run_crawler(pages: int = None):
         crawling_status["last_crawl"] = time.strftime("%Y-%m-%d %H:%M:%S")
         logger.info(f"Crawling completed. Found {item_count} items across {crawling_status['pages_crawled']} pages.")
             
+        # Chỉ tự động gọi ingestion khi crawler được gọi từ scheduler
+        if scheduled:
+            try:
+                logger.info("Tự động kích hoạt quá trình xử lý dữ liệu (data ingestion)...")
+                response = requests.post("http://data-ingestion:8000/process", timeout=10)
+                if response.status_code == 200:
+                    logger.info(f"Đã kích hoạt data-ingestion thành công: {response.status_code}")
+                else:
+                    logger.warning(f"Data-ingestion trả về mã lỗi: {response.status_code}, {response.text}")
+            except Exception as err:
+                logger.error(f"Không thể kích hoạt data-ingestion: {str(err)}")
+
+        
     except Exception as e:
         error_msg = f"Error during crawling: {str(e)}"
         logger.error(error_msg)
@@ -190,7 +203,7 @@ async def start_crawl(background_tasks: BackgroundTasks, pages: int = None):
         raise HTTPException(status_code=400, detail="Pages must be a positive integer")
         
     # Start background crawling task
-    background_tasks.add_task(run_crawler, pages)
+    background_tasks.add_task(run_crawler, pages, False)
     
     return {"message": "Crawling started", "pages_requested": pages or dataCrawling.MAX_PAGES_TO_CRAWL}
 
