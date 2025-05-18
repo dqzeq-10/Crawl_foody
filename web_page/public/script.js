@@ -163,47 +163,47 @@ function displayBranches(branches) {
 }
             
             // Format the branch data into HTML with error handling for missing data
-            item.innerHTML = `
-                <div class="bookmark-icon">
-                    <i class="far fa-heart"></i>
-                </div>
-                <div class="item-info">
-                    <a href="#" class="item-name">${branch.BranchName || 'Không có tên'}</a>
-                    <div class="item-address">${branch.Address || 'Không có địa chỉ'}</div>
-                    <div class="item-city">${branch.City || 'Không có thành phố'}</div>
-                    <div class="item-meta">
-                        <div class="item-rating">
-                            <i class="fas fa-star" style="color: #FFC107;"></i>
-                            <span>${branch.AvgRating ? branch.AvgRating.toFixed(1) : 'N/A'}</span>
-                        </div>
-                        <div class="item-reviews">
-                            <i class="fas fa-comment"></i>
-                            ${branch.TotalReview || 0}
-                        </div>
-                        <div class="item-checkins">
-                            <i class="fas fa-map-marker-alt"></i>
-                            ${branch.TotalCheckins || 0}
-                        </div>
-                    </div>
-                    <div class="item-status">
-                        <div class="${branch.IsOpening ? 'open-now' : 'closed-now'}">
-                            <i class="fas fa-clock status-icon"></i>
-                            ${branch.IsOpening ? 'Đang mở cửa' : 'Đã đóng cửa'}
-                        </div>
-                        <div class="delivery-available">
-                            <i class="fas fa-motorcycle status-icon"></i>
-                            ${branch.HasDelivery ? 'Giao hàng' : 'Không giao'}
-                        </div>
-                    </div>
-                </div>
-            `;
+            // item.innerHTML = `
+            //     <div class="bookmark-icon">
+            //         <i class="far fa-heart"></i>
+            //     </div>
+            //     <div class="item-info">
+            //         <a href="#" class="item-name">${branch.BranchName || 'Không có tên'}</a>
+            //         <div class="item-address">${branch.Address || 'Không có địa chỉ'}</div>
+            //         <div class="item-city">${branch.City || 'Không có thành phố'}</div>
+            //         <div class="item-meta">
+            //             <div class="item-rating">
+            //                 <i class="fas fa-star" style="color: #FFC107;"></i>
+            //                 <span>${branch.AvgRating ? branch.AvgRating.toFixed(1) : 'N/A'}</span>
+            //             </div>
+            //             <div class="item-reviews">
+            //                 <i class="fas fa-comment"></i>
+            //                 ${branch.TotalReview || 0}
+            //             </div>
+            //             <div class="item-checkins">
+            //                 <i class="fas fa-map-marker-alt"></i>
+            //                 ${branch.TotalCheckins || 0}
+            //             </div>
+            //         </div>
+            //         <div class="item-status">
+            //             <div class="${branch.IsOpening ? 'open-now' : 'closed-now'}">
+            //                 <i class="fas fa-clock status-icon"></i>
+            //                 ${branch.IsOpening ? 'Đang mở cửa' : 'Đã đóng cửa'}
+            //             </div>
+            //             <div class="delivery-available">
+            //                 <i class="fas fa-motorcycle status-icon"></i>
+            //                 ${branch.HasDelivery ? 'Giao hàng' : 'Không giao'}
+            //             </div>
+            //         </div>
+            //     </div>
+            // `;
             
             // Add item to row
-            itemsRow.appendChild(item);
+            //itemsRow.appendChild(item);
         
         
         // Add row to container
-        rowViewContent.appendChild(itemsRow);
+        //rowViewContent.appendChild(itemsRow);
     
     
     // Re-attach event listeners for bookmark icons
@@ -444,6 +444,53 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchForm = document.querySelector('.search-form');
     const searchInput = document.querySelector('.search-input');
     
+    //hiển thị gợi ý
+    const suggestionsBox = document.getElementById('search-suggestions');
+
+searchInput.addEventListener('input', async function () {
+    const query = searchInput.value.trim();
+
+    if (query.length < 2) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+
+    try {
+        const apiBaseUrl = 'http://127.0.0.1:8000';
+        const response = await fetch(`${apiBaseUrl}/branch/search/?q=${encodeURIComponent(query)}`);
+        const branches = await response.json();
+
+        // Hiển thị gợi ý
+        suggestionsBox.innerHTML = '';
+        if (branches.length === 0) {
+            suggestionsBox.innerHTML = `<div class="suggestion-item">Không tìm thấy kết quả</div>`;
+        } else {
+            branches.slice(0, 8).forEach(branch => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = branch.BranchName || 'Không rõ tên';
+                div.addEventListener('click', () => {
+                    searchInput.value = branch.BranchName;
+                    suggestionsBox.style.display = 'none';
+                    searchBranches(branch.BranchName);
+                });
+                suggestionsBox.appendChild(div);
+            });
+        }
+
+        suggestionsBox.style.display = 'block';
+    } catch (error) {
+        console.error('Lỗi gợi ý:', error);
+        suggestionsBox.style.display = 'none';
+    }
+});
+//ẩn khi rời khỏi ô tìm kiếm
+searchInput.addEventListener('blur', () => {
+    setTimeout(() => suggestionsBox.style.display = 'none', 150); // chờ để xử lý click
+});
+
+
+
     if (searchForm && searchInput) {
         searchForm.addEventListener('submit', function(event) {
             event.preventDefault();
@@ -456,11 +503,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetchBranches();
             }
         });
-        
-        // Add search button click event
+          // Add search button click event
         const searchBtn = document.querySelector('.search-btn');
         if (searchBtn) {
-            searchBtn.addEventListener('click', function() {
+            searchBtn.addEventListener('click', function(event) {
+                event.preventDefault();
                 const query = searchInput.value.trim();
                 
                 if (query) {
@@ -514,12 +561,39 @@ async function searchBranches(query) {
         
         // Update UI to show search results text
         const deliveryTabs = document.querySelector('.delivery-tabs');
-        if (deliveryTabs) {
-            const activeTab = deliveryTabs.querySelector('.active');
-            if (activeTab) {
-                activeTab.textContent = `Kết quả tìm kiếm: "${query}"`;
-            }
+if (deliveryTabs) {
+    const tabs = deliveryTabs.querySelectorAll('.delivery-tab');
+    const queryText = `Kết quả tìm kiếm: "${query}"`;
+
+    // Tìm tab "Kết quả tìm kiếm"
+    let searchTab = deliveryTabs.querySelector('.search-results-tab');
+
+    if (searchTab) {
+        // Nếu đã tồn tại, chỉ cần cập nhật nội dung
+        searchTab.textContent = queryText;
+    } else {
+        // Nếu chưa có, tạo mới và chèn sau tab "Đánh giá tốt nhất"
+        searchTab = document.createElement('a');
+        searchTab.className = 'delivery-tab search-results-tab';
+        searchTab.textContent = queryText;
+
+        // Chèn sau tab "Đánh giá tốt nhất" (tab thứ 3: index 2)
+        if (tabs.length >= 3) {
+            tabs[2].after(searchTab);
+        } else {
+            deliveryTabs.appendChild(searchTab); // fallback
         }
+    }
+
+    // Cập nhật trạng thái active
+    const currentActive = deliveryTabs.querySelector('.delivery-tab.active');
+    if (currentActive) {
+        currentActive.classList.remove('active');
+    }
+    searchTab.classList.add('active');
+}
+
+
     } catch (error) {
         console.error('Error searching branches:', error);
         // Display error message on the page

@@ -20,6 +20,7 @@ if os.environ.get('WAIT_FOR_DB', '0') == '1':
     time.sleep(15)  # Đợi 15 giây để đảm bảo MySQL hoàn tất initialization
 
 app = FastAPI()
+# Thiết lập CORS cho phép truy cập từ localhost:3000
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:3000"],  # hoặc ["*"] để cho phép tất cả
