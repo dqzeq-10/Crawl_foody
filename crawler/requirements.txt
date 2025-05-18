@@ -5,3 +5,5 @@ webdriver-manager
 pandas
 fastapi
 uvicorn
+apscheduler
+python-dateutil

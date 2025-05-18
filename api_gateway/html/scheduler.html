@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Lịch Thu Thập Dữ Liệu - Foody Crawler</title>
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --background-color: #f9f9f9;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--background-color);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            font-size: 2.2em;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .schedule-form {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .schedule-form h2 {
+            color: var(--secondary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .schedule-list {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .schedule-list h2 {
+            color: var(--secondary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-inactive {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .cron-examples {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .cron-examples h3 {
+            margin-top: 0;
+            font-size: 16px;
+        }
+
+        .cron-examples table {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .cron-examples td {
+            padding: 6px;
+        }
+
+        #messageBox {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 300px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: var(--success-color);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 100;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            10%,
+            90% {
+                opacity: 1;
+            }
+        }
+
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Quản lý Lịch Thu Thập Dữ Liệu</h1>
+        <p>Cấu hình và quản lý các lịch trình tự động thu thập dữ liệu từ Foody</p>
+    </header>
+
+    <div class="container">
+        <section class="schedule-form">
+            <h2>Tạo Lịch Trình Mới</h2>
+            <form id="scheduleForm">
+                <div class="form-group">
+                    <label for="name">Tên lịch trình:</label>
+                    <input type="text" id="name" required placeholder="VD: Cào dữ liệu hàng ngày">
+                </div>
+                <div class="form-group">
+                    <label for="cron">Biểu thức Cron:</label>
+                    <input type="text" id="cron" required placeholder="VD: 0 0 * * *">
+                    <div class="cron-examples">
+                        <h3>Ví dụ biểu thức Cron:</h3>
+                        <table>
+                            <tr>
+                                <td><code>0 0 * * *</code></td>
+                                <td>Chạy lúc 00:00 mỗi ngày</td>
+                            </tr>
+                            <tr>
+                                <td><code>0 8 * * 1-5</code></td>
+                                <td>Chạy lúc 8:00 từ thứ 2 đến thứ 6</td>
+                            </tr>
+                            <tr>
+                                <td><code>0 */4 * * *</code></td>
+                                <td>Chạy mỗi 4 giờ</td>
+                            </tr>
+                            <tr>
+                                <td><code>0 9 1 * *</code></td>
+                                <td>Chạy lúc 9:00 ngày mùng 1 hàng tháng</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="pages">Số trang cần crawl:</label>
+                    <input type="number" id="pages" min="1" value="1" placeholder="Số trang">
+                </div>
+                <div class="form-group">
+                    <label for="description">Mô tả:</label>
+                    <textarea id="description" placeholder="Mô tả chi tiết về lịch trình này"></textarea>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="active" checked>
+                    <label for="active">Kích hoạt ngay</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Tạo Lịch Trình</button>
+            </form>
+        </section>
+
+        <section class="schedule-list">
+            <h2>Danh Sách Lịch Trình</h2>
+            <table id="scheduleTable">
+                <thead>
+                    <tr>
+                        <th>Tên</th>
+                        <th>Cron</th>
+                        <th>Trang</th>
+                        <th>Lần chạy tiếp theo</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dữ liệu sẽ được điền ở đây bằng JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <div id="messageBox"></div>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // API endpoints
+        const API_ENDPOINT = '/api/crawler/schedule';
+
+        // DOM Elements
+        const scheduleForm = document.getElementById('scheduleForm');
+        const scheduleTable = document.getElementById('scheduleTable');
+        const messageBox = document.getElementById('messageBox');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Show message
+        function showMessage(message, isError = false) {
+            messageBox.textContent = message;
+            messageBox.style.backgroundColor = isError ? '#e74c3c' : '#27ae60';
+            messageBox.style.display = 'block';
+
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000);
+        }
+
+        // Toggle loading overlay
+        function toggleLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // Fetch all schedules
+        async function fetchSchedules() {
+            try {
+                toggleLoading(true);
+                const response = await fetch(API_ENDPOINT);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                renderSchedules(data);
+            } catch (error) {
+                console.error('Error fetching schedules:', error);
+                showMessage('Không thể tải danh sách lịch trình: ' + error.message, true);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Render schedules table
+        function renderSchedules(schedules) {
+            const tbody = scheduleTable.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            if (schedules.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="6" style="text-align: center;">Chưa có lịch trình nào được tạo</td>`;
+                tbody.appendChild(row);
+                return;
+            }
+
+            schedules.forEach(schedule => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${schedule.name}</td>
+                    <td><code>${schedule.cron_expression}</code></td>
+                    <td>${schedule.pages || 1}</td>
+                    <td>${schedule.next_run || 'N/A'}</td>
+                    <td>
+                        <span class="status ${schedule.active ? 'status-active' : 'status-inactive'}">
+                            ${schedule.active ? 'Đang hoạt động' : 'Tạm dừng'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm ${schedule.active ? 'btn-warning' : 'btn-success'}" onclick="toggleSchedule('${schedule.name}')">
+                            ${schedule.active ? 'Tạm dừng' : 'Kích hoạt'}
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSchedule('${schedule.name}')">Xóa</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Create new schedule
+        async function createSchedule(formData) {
+            try {
+                toggleLoading(true);
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Không thể tạo lịch trình');
+                }
+
+                showMessage('Đã tạo lịch trình thành công');
+                fetchSchedules();
+                scheduleForm.reset();
+            } catch (error) {
+                console.error('Error creating schedule:', error);
+                showMessage('Lỗi: ' + error.message, true);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Toggle schedule active status
+        async function toggleSchedule(name) {
+            try {
+                toggleLoading(true);
+                const response = await fetch(`${API_ENDPOINT}/${name}/toggle`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Không thể thay đổi trạng thái lịch trình');
+                }
+
+                showMessage(`Đã ${data.active ? 'kích hoạt' : 'tạm dừng'} lịch trình '${name}'`);
+                fetchSchedules();
+            } catch (error) {
+                console.error('Error toggling schedule:', error);
+                showMessage('Lỗi: ' + error.message, true);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Delete schedule
+        async function deleteSchedule(name) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa lịch trình '${name}'?`)) {
+                return;
+            }
+
+            try {
+                toggleLoading(true);
+                const response = await fetch(`${API_ENDPOINT}/${name}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.detail || 'Không thể xóa lịch trình');
+                }
+
+                showMessage(`Đã xóa lịch trình '${name}'`);
+                fetchSchedules();
+            } catch (error) {
+                console.error('Error deleting schedule:', error);
+                showMessage('Lỗi: ' + error.message, true);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Event Listeners
+        scheduleForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const formData = {
+                name: document.getElementById('name').value,
+                cron_expression: document.getElementById('cron').value,
+                pages: parseInt(document.getElementById('pages').value),
+                description: document.getElementById('description').value,
+                active: document.getElementById('active').checked
+            };
+
+            createSchedule(formData);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchSchedules();
+        });
+
+        // Make functions available globally
+        window.toggleSchedule = toggleSchedule;
+        window.deleteSchedule = deleteSchedule;
+    </script>
+</body>
+
+</html>
