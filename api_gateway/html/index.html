@@ -193,6 +193,29 @@
             <p>Đặt lại trạng thái crawler (dùng cho debug/kiểm thử).</p>
         </div>
 
+        <h3> <a href="http://localhost:8002/docs" target="_blank" class="api-doc-link">API DATA INGESTION Docs</a>
+        </h3>
+        <div class="endpoint">
+            <p><span class="method">GET</span> <a href="/api/ingestion/status">/api/ingestion/status</a></p>
+            <p>Lấy trạng thái hiện tại của quá trình xử lý dữ liệu.</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method post">POST</span> <a href="/api/ingestion/process">/api/ingestion/process</a></p>
+            <p>Bắt đầu quá trình xử lý dữ liệu mới. Tham số tùy chọn: <code>force</code>.</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method">GET</span> <a href="/api/ingestion/preview">/api/ingestion/preview</a></p>
+            <p>Xem trước dữ liệu đã xử lý. Tham số tùy chọn: <code>limit</code>.</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method post">POST</span> <a href="/api/ingestion/reset">/api/ingestion/reset</a></p>
+            <p>Đặt lại trạng thái xử lý dữ liệu (dùng cho debug/kiểm thử).</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method">GET</span> <a href="/api/ingestion/db/check">/api/ingestion/db/check</a></p>
+            <p>Kiểm tra kết nối đến database API.</p>
+        </div>
+
         <h3> <a href="http://localhost:8000/docs" target="_blank" class="api-doc-link">API BRANCHES Docs</a>
         </h3>
         <div class="endpoint">
