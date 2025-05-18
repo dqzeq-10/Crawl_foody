@@ -18,5 +18,7 @@ RUN mkdir -p /app/landing_zone
 # Make start.sh executable
 RUN chmod +x start.sh
 
-# Command to run the crawler
-CMD ["./start.sh"]
+EXPOSE 8000
+
+# Command to run the crawler API
+CMD ["uvicorn", "crawler_api:app", "--host", "0.0.0.0", "--port", "8000"]

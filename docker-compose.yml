@@ -51,11 +51,18 @@ services:
     volumes:
       - landing_data:/app/landing_zone
       - ./landing_zone:/host_landing_zone
+    ports:
+      - "8001:8000"
     depends_on:
       db-api:
         condition: service_healthy
     networks:
       - foody-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Data Ingestion service
   data-ingestion:
