@@ -89,7 +89,7 @@ async function fetchBranches(locationId) {
     
     try {
         // API base URL - adjust this based on your setup
-        const apiBaseUrl = 'http://127.0.0.1:8000';
+        const apiBaseUrl = 'http://localhost:8000';
         
         // Fetch branches data with a timeout
         const controller = new AbortController();
@@ -456,7 +456,7 @@ searchInput.addEventListener('input', async function () {
     }
 
     try {
-        const apiBaseUrl = 'http://127.0.0.1:8000';
+        const apiBaseUrl = 'http://localhost:8000';
         const response = await fetch(`${apiBaseUrl}/branch/search/?q=${encodeURIComponent(query)}`);
         const branches = await response.json();
 
@@ -536,7 +536,7 @@ async function searchBranches(query) {
     
     try {
         // API base URL - adjust this based on your setup
-        const apiBaseUrl = 'http://127.0.0.1:8000';
+        const apiBaseUrl = 'http://localhost:8000';
         
         // Fetch search results with a timeout
         const controller = new AbortController();
@@ -646,7 +646,7 @@ async function applyFilter(filter) {
     
     // Fetch all branches first
     try {
-        const apiBaseUrl = 'http://127.0.0.1:8000';
+        const apiBaseUrl = 'http://localhost:8000';
         
         // Fetch branches data with a timeout
         const controller = new AbortController();

@@ -277,11 +277,23 @@
                         href="http://localhost:8000/docs#/default/delete_branch_branch__branch_id__delete">/api/db/branch/{branch_id}</a>
                 </p>
                 <p>Xóa một chi nhánh theo ID.</p>
-            </div>
-
+            </div> 
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a
+                        href="http://localhost:8000/docs#/default/search_branch_by_name_branch_search__get">/api/db/branch/search</a>
+                </p>
+                <p>Tìm chi nhánh theo các ký tự nhập vào.</p>
+            </div>           
             <div class="endpoint">
                 <p><span class="method">GET</span> <a href="/health">/health</a></p>
                 <p>Endpoint kiểm tra trạng thái để xác minh xem Cổng API có đang hoạt động không.</p>
+            </div>
+
+            <h3> <a href="/web" target="_blank" class="api-doc-link">Foody Web Page</a>
+            </h3>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a href="http://localhost:3000/foody.html">/foody</a></p>
+                <p>Trang web giao diện người dùng Foody, hiển thị và tìm kiếm thông tin các chi nhánh.</p>
             </div>
     </div>
 
@@ -290,11 +302,10 @@
         <p>Thực hiện các yêu cầu HTTP đến các endpoint ở trên bằng cách sử dụng các phương thức HTTP và tham số thích
             hợp. Tất cả các phản hồi đều ở định dạng JSON. Nhấp vào bất kỳ liên kết endpoint nào để truy cập trực tiếp.
         </p>
-    </div>
-
-    <h2>Dịch Vụ</h2>
+    </div>    <h2>Dịch Vụ</h2>
     <ul class="services-list">
         <li><strong>DB API</strong>: Cung cấp các thao tác cơ sở dữ liệu cho các chi nhánh Foody</li>
+        <li><strong>Web Page</strong>: Giao diện người dùng để duyệt và tìm kiếm các chi nhánh Foody</li>
     </ul>
     <footer>
         <p>Hệ thống Foody Crawler &copy; 2025</p>
