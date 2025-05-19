@@ -17,6 +17,7 @@
             --method-put: #8e44ad;
             --method-delete: #e74c3c;
             --card-bg: #ffffff;
+            --button-hover: #e67e22;
         }
 
         body {
@@ -47,6 +48,16 @@
             font-size: 1.8em;
             border-left: 4px solid var(--accent-color);
             padding-left: 10px;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            margin: 30px 0 15px 0;
+            font-size: 1.4em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            width: 100%;
+            grid-column: 1 / -1;
         }
 
         .endpoints-container {
@@ -137,6 +148,21 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
+        .api-doc-link {
+            margin-left: 10px;
+            font-size: 0.9em;
+            background-color: rgba(52, 152, 219, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--accent-color);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .api-doc-link:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
     </style>
 </head>
 
@@ -147,36 +173,116 @@
 
     <h2>Các Endpoint Có Sẵn</h2>
 
+
+
     <div class="endpoints-container">
+        <h3> <a href="http://localhost:8001/docs" target="_blank" class="api-doc-link">API CRAWLER Docs</a>
+        </h3>
         <div class="endpoint">
-            <p><span class="method">GET</span> <a href="/api/db/branches">/api/db/branches</a></p>
-            <p>Lấy danh sách tất cả các chi nhánh.</p>
+            <p><span class="method">GET</span> <a href="/api/crawler/status">/api/crawler/status</a></p>
+            <p>Lấy trạng thái hiện tại của dịch vụ crawler.</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method post">POST</span> <a
+                    href="http://localhost:8001/docs#/default/start_crawl_crawl_post">/api/crawler/crawl</a></p>
+            <p>Bắt đầu một công việc crawl mới. Tham số tùy chọn: <code>pages</code>.</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method post">POST</span> <a
+                    href="http://localhost:8001/docs#/default/reset_crawler_reset_post">/api/crawler/reset</a></p>
+            <p>Đặt lại trạng thái crawler (dùng cho debug/kiểm thử).</p>
         </div>
 
+
+        <h3> <a href="http://localhost:8002/docs" target="_blank" class="api-doc-link">API DATA INGESTION Docs</a>
+        </h3>
         <div class="endpoint">
-            <p><span class="method">GET</span> <a href="/api/db/branch/1">/api/db/branch/{branch_id}</a></p>
-            <p>Lấy thông tin chi tiết của một chi nhánh cụ thể theo ID.</p>
+            <p><span class="method">GET</span> <a href="/api/ingestion/status">/api/ingestion/status</a></p>
+            <p>Lấy trạng thái hiện tại của quá trình xử lý dữ liệu.</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method post">POST</span> <a href="/api/ingestion/process">/api/ingestion/process</a></p>
+            <p>Bắt đầu quá trình xử lý dữ liệu mới. Tham số tùy chọn: <code>force</code>.</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method">GET</span> <a href="/api/ingestion/preview">/api/ingestion/preview</a></p>
+            <p>Xem trước dữ liệu đã xử lý. Tham số tùy chọn: <code>limit</code>.</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method post">POST</span> <a href="/api/ingestion/reset">/api/ingestion/reset</a></p>
+            <p>Đặt lại trạng thái xử lý dữ liệu (dùng cho debug/kiểm thử).</p>
+        </div>
+        <div class="endpoint">
+            <p><span class="method">GET</span> <a href="/api/ingestion/db/check">/api/ingestion/db/check</a></p>
+            <p>Kiểm tra kết nối đến database API.</p>
         </div>
 
-        <div class="endpoint">
-            <p><span class="method post">POST</span> <a href="/api/db/branch">/api/db/branch</a></p>
-            <p>Tạo một chi nhánh mới.</p>
-        </div>
+        <h3> <a href="/scheduler" target="_blank" class="api-doc-link">API DATA INGESTION Docs</a>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a href="/api/crawler/schedule">/api/crawler/schedule</a></p>
+                <p>Lấy danh sách tất cả lịch trình crawl đã cấu hình.</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method post">POST</span> <a href="/api/crawler/schedule">/api/crawler/schedule</a></p>
+                <p>Tạo một lịch trình crawl mới. Yêu cầu body JSON với các trường: name, cron_expression, pages (tùy
+                    chọn),
+                    description (tùy chọn), active (tùy chọn).</p>
+                <p><small>Ví dụ cron: "0 0 * * *" (chạy lúc 0:00 mỗi ngày)</small></p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method put">PUT</span> <a
+                        href="/api/crawler/schedule/{name}">/api/crawler/schedule/{name}</a></p>
+                <p>Cập nhật lịch trình crawl hiện có.</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method delete">DELETE</span> <a
+                        href="/api/crawler/schedule/{name}">/api/crawler/schedule/{name}</a></p>
+                <p>Xóa lịch trình crawl.</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method post">POST</span> <a
+                        href="/api/crawler/schedule/{name}/toggle">/api/crawler/schedule/{name}/toggle</a></p>
+                <p>Bật/tắt lịch trình crawl.</p>
+            </div>
 
-        <div class="endpoint">
-            <p><span class="method put">PUT</span> <a href="/api/db/branch/1">/api/db/branch/{branch_id}</a></p>
-            <p>Cập nhật thông tin chi nhánh hiện có.</p>
-        </div>
+            <h3> <a href="http://localhost:8000/docs" target="_blank" class="api-doc-link">API BRANCHES Docs</a>
+            </h3>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a
+                        href="http://localhost:8000/docs#/default/get_branches_branches_get">/api/db/branches</a></p>
+                <p>Lấy danh sách tất cả các chi nhánh.</p>
+            </div>
 
-        <div class="endpoint">
-            <p><span class="method delete">DELETE</span> <a href="/api/db/branch/1">/api/db/branch/{branch_id}</a></p>
-            <p>Xóa một chi nhánh theo ID.</p>
-        </div>
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a
+                        href="http://localhost:8000/docs#/default/get_branch_by_id_branch__branch_id__get">/api/db/branch/{branch_id}</a>
+                </p>
+                <p>Lấy thông tin chi tiết của một chi nhánh cụ thể theo ID.</p>
+            </div>
 
-        <div class="endpoint">
-            <p><span class="method">GET</span> <a href="/health">/health</a></p>
-            <p>Endpoint kiểm tra trạng thái để xác minh xem Cổng API có đang hoạt động không.</p>
-        </div>
+            <div class="endpoint">
+                <p><span class="method post">POST</span> <a
+                        href="http://localhost:8000/docs#/default/create_branch_branch_post">/api/db/branch</a></p>
+                <p>Tạo một chi nhánh mới.</p>
+            </div>
+            <div class="endpoint">
+                <p><span class="method put">PUT</span> <a
+                        href="http://localhost:8000/docs#/default/update_branch_branch__branch_id__put">/api/db/branch/{branch_id}</a>
+                </p>
+                <p>Cập nhật thông tin chi nhánh hiện có.</p>
+            </div>
+
+            <div class="endpoint">
+                <p><span class="method delete">DELETE</span> <a
+                        href="http://localhost:8000/docs#/default/delete_branch_branch__branch_id__delete">/api/db/branch/{branch_id}</a>
+                </p>
+                <p>Xóa một chi nhánh theo ID.</p>
+            </div>
+
+            <div class="endpoint">
+                <p><span class="method">GET</span> <a href="/health">/health</a></p>
+                <p>Endpoint kiểm tra trạng thái để xác minh xem Cổng API có đang hoạt động không.</p>
+            </div>
     </div>
 
     <h2>Cách Sử Dụng</h2>
@@ -190,7 +296,6 @@
     <ul class="services-list">
         <li><strong>DB API</strong>: Cung cấp các thao tác cơ sở dữ liệu cho các chi nhánh Foody</li>
     </ul>
-
     <footer>
         <p>Hệ thống Foody Crawler &copy; 2025</p>
     </footer>

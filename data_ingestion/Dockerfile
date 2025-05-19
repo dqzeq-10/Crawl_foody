@@ -18,5 +18,8 @@ RUN mkdir -p /app/landing_zone
 # Make start.sh and entrypoint.sh executable
 RUN chmod +x start.sh entrypoint.sh
 
-# Command to run the data ingestion script
-CMD ["./entrypoint.sh"]
+# Expose API port
+EXPOSE 8000
+
+# Command to run the API
+CMD ["uvicorn", "data_ingestion_api:app", "--host", "0.0.0.0", "--port", "8000"]
