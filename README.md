@@ -55,7 +55,7 @@ Dự án này là một hệ thống crawl dữ liệu từ website Foody.vn, ba
 │   ├── package.json         # Node.js dependencies
 │   ├── start.sh            # Service startup script
 │   └── public/
-│       ├── foody.html      # Main webpage
+│       ├── index.html      # Main webpage
 │       ├── script.js       # Frontend JavaScript
 │       ├── style.css       # Main styles
 │       ├── dynamic-items.css
@@ -64,7 +64,9 @@ Dự án này là một hệ thống crawl dữ liệu từ website Foody.vn, ba
 │       ├── search-suggestions.css
 │       └── images/         # Image assets directory
 │
-└── docker-compose.yml        # Docker compose configuration
+├── docker-compose.yml        # Docker compose configuration
+│
+└── README.md
 
 ```
 
