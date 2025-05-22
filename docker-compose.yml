@@ -94,6 +94,20 @@ services:
       timeout: 5s
       retries: 5
 
+  # Dịch vụ web-page cũng sẽ được triển khai sau
+  web-page:
+    build:
+      context: ./web_page
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:3000" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - foody-network
+
   # API Gateway service
   api-gateway:
     build:
@@ -111,10 +125,14 @@ services:
         condition: service_healthy
       crawler:
         condition: service_healthy
+      web-page:
+        condition: service_started
     links:
       - db-api
       - data-ingestion
       - crawler
+      - web-page
+
     healthcheck:
       test: [ "CMD", "sh", "health_check.sh" ]
       interval: 10s
@@ -122,17 +140,6 @@ services:
       retries: 5
     networks:
       - foody-network
-
-# Dịch vụ web-page cũng sẽ được triển khai sau
-  web-page:
-   build:
-     context: ./web_page
-   ports:
-     - "3000:3000"
-   depends_on:
-     - api-gateway
-   networks:
-     - foody-network
 
 # Define a custom network for all services
 networks:
